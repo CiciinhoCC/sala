@@ -106,26 +106,12 @@ const corpoTabela = document.getElementById("corpoTabela");
 const selectTurno = document.getElementById("turno");
 selectTurno.innerHTML = "";
 
-getDias().then(data => {
-    data.sort((a, b) => new Date(a) - new Date(b)).forEach(dia => {
-        selectTurno.innerHTML += `<option value="${dia}">${dia}</option>`
-    });
-});
-
-async function getTabela(dia) {
-    let agendamentos = await getData();
-    const tabela = agendamentos[dia];
-    return tabela;
-}
-
 async function gerarTabela(tabela) {
     tabelaHorarios.innerHTML = "<th></th>" + horarios.map(h => `<th>${h}</th>`).join("");
-
-    corpoTabela, innerHTML = ""
+    corpoTabela.innerHTML = "";
 
     for (let i = 0; i < salasLista.length; i++) {
         const sala = tabela[salasLista[i]];
-        console.log(sala);
 
         const celulas = sala.map(h => {
             if (h == "") {
@@ -136,25 +122,39 @@ async function gerarTabela(tabela) {
             }
         }).join("");
 
-        corpoTabela.innerHTML += `<tr><td class="sala">${i}</td>${celulas}</tr>`
+        corpoTabela.innerHTML += `<tr><td class="sala">${salasLista[i]}</td>${celulas}</tr>`
     }
 }
 
-let hoje = new Date().toJSON().slice(0, 10);;
+let hoje = new Date().toJSON().slice(0, 10);
 let vagasHoje;
 getData().then(data => {
+    console.log(data);
     if (!(hoje in data)) {
         vagasHoje = criarDia();
     }
     else {
         vagasHoje = data[hoje];
     }
+    gerarTabela(vagasHoje);
 });
 
-gerarTabela(hoje);
+getDias().then(data => {
+    data.sort((a, b) => new Date(b) - new Date(a)).forEach(dia => {
+        if (dia == hoje) {
+            selectTurno.innerHTML += `<option value="${dia}" selected>${dia}</option>`
+        } else {
+            selectTurno.innerHTML += `<option value="${dia}">${dia}</option>`
+        }
+    });
+});
 
-// Alterna entre turnos
 selectTurno.addEventListener("change", e => {
-    gerarTabela(getTabela(e.target.value));
+    value = e.target.value;
+    console.log(value);
+    getData().then(data => {
+        console.log(data[value]);
+        gerarTabela(data[value]);
+    });
 });
 
