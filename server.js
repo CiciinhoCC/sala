@@ -79,7 +79,7 @@ app.post('/agendar', (req, res) => {
     const FIM = body.fim;
     const COISA = body.coisa;
 
-    fs.readFile('data.json', function (err, data) {
+    fs.readFile('./data.json', function (err, data) {
         if (err) {
             // If file doesn't exist, start with empty array
             if (err.code === 'ENOENT') {
@@ -97,7 +97,6 @@ app.post('/agendar', (req, res) => {
             }
             const dia = json[DIA];
             const sala = dia[SALA];
-            console.log(sala);
             let pode = true;
             for (i = INICIO; i <= FIM && pode; i++) {
                 if (sala[i] != "") {
@@ -106,11 +105,11 @@ app.post('/agendar', (req, res) => {
                 }
             }
             if (pode) {
-                for (i = INICIO; i <= FIM && pode; i++) {
+                for (i = INICIO; i <= FIM; i++) {
                     sala[i] = COISA;
                 }
             }
-            fs.writeFile("data.json", JSON.stringify(json, null, 2), function (err) {
+            fs.writeFile("./data.json", JSON.stringify(json, null, 2), function (err) {
                 if (err) {
                     console.error("Error writing file:", err);
                     return res.status(500).send("Error writing file");

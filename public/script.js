@@ -6,7 +6,7 @@ async function getData() {
 }
 
 async function getDia(dia) {
-    const response = await fetch(`../get-dia?dia=${dia}`, {
+    const response = await fetch(`/get-dia?dia=${dia}`, {
         method: 'GET',
     });
     const data = await response.json();
@@ -15,7 +15,7 @@ async function getDia(dia) {
 }
 
 async function getDias() {
-    const response = await fetch(`../get-dias`, {
+    const response = await fetch(`/get-dias`, {
         method: 'GET',
     });
     const data = await response.json();
@@ -39,6 +39,17 @@ async function getDias() {
 //             console.error("Error:", error);
 //         });
 // }
+const salasLista = ["sala1", "sala2", "sala3"];
+
+function criarDia() {
+    const arrayPadrao = Array(30).fill("");
+    let object = {};
+    salasLista.forEach(elem => {
+        object[elem] = [...arrayPadrao];
+    });
+
+    return object;
+}
 
 function horaToVaga(hora) {
     let stunden = hora.split(":")[0];
@@ -52,17 +63,17 @@ function vagaToHora(vaga) {
     return stunden + minuten;
 }
 
-function agendar(dia, inicio, fim, sala, coisa) {
-    fetch('../agendar', {
+function agendar(dia, sala, inicio, fim, coisa) {
+    fetch('/agendar', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             dia: dia,
+            sala: sala,
             inicio: inicio,
             fim: fim,
-            sala: sala,
             coisa: coisa
         })
     })
@@ -87,8 +98,6 @@ function criarHorarios(len) {
     return arr;
 }
 
-let dias = getDias();
-// .sort((a, b) => new Date(a) - new Date(b));
 const horarios = criarHorarios(30);
 
 
@@ -96,19 +105,27 @@ const tabelaHorarios = document.getElementById("linhaHorarios");
 const corpoTabela = document.getElementById("corpoTabela");
 const selectTurno = document.getElementById("turno");
 selectTurno.innerHTML = "";
-dias.forEach(dia => {
-    selectTurno.innerHTML += `<option value="${dia}">${dia}</option>`
+
+getDias().then(data => {
+    data.sort((a, b) => new Date(a) - new Date(b)).forEach(dia => {
+        selectTurno.innerHTML += `<option value="${dia}">${dia}</option>`
+    });
 });
 
-function gerarTabela(dia) {
-    const tabela = getDia(dia);
-    
+async function getTabela(dia) {
+    let agendamentos = await getData();
+    const tabela = agendamentos[dia];
+    return tabela;
+}
+
+async function gerarTabela(tabela) {
     tabelaHorarios.innerHTML = "<th></th>" + horarios.map(h => `<th>${h}</th>`).join("");
 
     corpoTabela, innerHTML = ""
 
-    for (const i in tabela) {
-        const sala = tabela[i];
+    for (let i = 0; i < salasLista.length; i++) {
+        const sala = tabela[salasLista[i]];
+        console.log(sala);
 
         const celulas = sala.map(h => {
             if (h == "") {
@@ -123,7 +140,21 @@ function gerarTabela(dia) {
     }
 }
 
+let hoje = new Date().toJSON().slice(0, 10);;
+let vagasHoje;
+getData().then(data => {
+    if (!(hoje in data)) {
+        vagasHoje = criarDia();
+    }
+    else {
+        vagasHoje = data[hoje];
+    }
+});
+
+gerarTabela(hoje);
+
 // Alterna entre turnos
 selectTurno.addEventListener("change", e => {
-    gerarTabela(e.target.value);
+    gerarTabela(getTabela(e.target.value));
 });
+
