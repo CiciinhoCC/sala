@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Agendamento Online Senac</title>
+</head>
+
+<body>
+
+  <header class="cabecalho">
+    <img src="logo.png" alt="Logo Senac" class="logo">
+    <h1 class="texto-cabecalho">Agendamento de salas</h1>
+    <div></div>
+  </header>
+
+  <main class="tabela-container">
+    <div class="topo">
+      <select id="turno">
+      </select>
+      <h2>Salas de Aula</h2>
+    </div>
+
+    <table class="tabela-salas" id="tabelaSalas">
+      <thead>
+        <tr id="linhaHorarios">
+          <!-- Horários serão gerados dinamicamente -->
+        </tr>
+      </thead>
+      <tbody id="corpoTabela">
+        <!-- Conteúdo será gerado via JavaScript -->
+      </tbody>
+    </table>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
